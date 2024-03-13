@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basit Oyun</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        // Oyun alanı ve topun başlangıç konumu
+        var canvas = document.getElementById("gameCanvas");
+        var ctx = canvas.getContext("2d");
+        var ballRadius = 10;
+        var x = canvas.width / 2;
+        var y = canvas.height - 30;
+        var dx = 2;
+        var dy = -2;
+
+        // Raket bilgileri
+        var paddleHeight = 10;
+        var paddleWidth = 75;
+        var paddleX = (canvas.width - paddleWidth) / 2;
+
+        // Klavye kontrolü
+        var rightPressed = false;
+        var leftPressed = false;
+
+        // Tuşa basılı tutma ve bırakma olayları
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = true;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = false;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = false;
+            }
+        }
+
+        // Top çizme fonksiyonu
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Raket çizme fonksiyonu
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Oyun alanını çizme fonksiyonu
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Önceki çizimleri temizle
+
+            drawBall();
+            drawPaddle();
+
+            // Top hareketi
+            x += dx;
+            y += dy;
+
+            // Topun sağ veya sol sınıra çarpma kontrolü
+            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+                dx = -dx;
+            }
+
+            // Topun üst sınıra çarpma kontrolü
+            if (y + dy < ballRadius) {
+                dy = -dy;
+            }
+            // Topun raket ile çarpma kontrolü
+            else if (y + dy > canvas.height - ballRadius - paddleHeight && x > paddleX && x < paddleX + paddleWidth) {
+                dy = -dy;
+            }
+            // Topun alt sınıra çarpma kontrolü (oyunu kaybetme)
+            else if (y + dy > canvas.height - ballRadius) {
+                alert("Oyun bitti!");
+                document.location.reload();
+            }
+
+            // Raketin sağa ve sola hareketi
+            if (rightPressed && paddleX < canvas.width - paddleWidth) {
+                paddleX += 7;
+            } else if (leftPressed && paddleX > 0) {
+                paddleX -= 7;
+            }
+
+            requestAnimationFrame(draw); // Animasyon devam etsin
+        }
+
+        draw(); // Oyunu başlat
+    </script>
+</body>
+</html>
